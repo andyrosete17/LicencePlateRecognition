@@ -28,17 +28,20 @@ namespace LicensePlateRecognition
       /// </summary>
       private void InitializeComponent()
       {
+            this.components = new System.ComponentModel.Container();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.panel3 = new System.Windows.Forms.Panel();
+            this.imageBox1 = new Emgu.CV.UI.ImageBox();
+            this.nameB = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
             this.inputTextBox = new System.Windows.Forms.TextBox();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.indiceB = new System.Windows.Forms.TextBox();
-            this.beforeB = new System.Windows.Forms.Button();
-            this.nextB = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
-            this.button4 = new System.Windows.Forms.Button();
             this.inputB = new System.Windows.Forms.TextBox();
-            this.button3 = new System.Windows.Forms.Button();
+            this.SaveDbButton = new System.Windows.Forms.Button();
+            this.button4 = new System.Windows.Forms.Button();
+            this.DeleteBtn = new System.Windows.Forms.Button();
             this.cVisionButton = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.GoogleBtn = new System.Windows.Forms.Button();
@@ -48,19 +51,17 @@ namespace LicensePlateRecognition
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.button1 = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
+            this.indiceB = new System.Windows.Forms.TextBox();
+            this.beforeB = new System.Windows.Forms.Button();
+            this.nextB = new System.Windows.Forms.Button();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            this.label3 = new System.Windows.Forms.Label();
-            this.nameB = new System.Windows.Forms.TextBox();
-            this.SaveDbButton = new System.Windows.Forms.Button();
-            this.panel3 = new System.Windows.Forms.Panel();
-            this.imageBox1 = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
-            this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.imageBox1)).BeginInit();
+            this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitContainer1
@@ -76,8 +77,13 @@ namespace LicensePlateRecognition
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.panel3);
+            this.splitContainer1.Panel2.Controls.Add(this.nameB);
+            this.splitContainer1.Panel2.Controls.Add(this.label3);
             this.splitContainer1.Panel2.Controls.Add(this.inputTextBox);
             this.splitContainer1.Panel2.Controls.Add(this.panel2);
+            this.splitContainer1.Panel2.Controls.Add(this.indiceB);
+            this.splitContainer1.Panel2.Controls.Add(this.beforeB);
+            this.splitContainer1.Panel2.Controls.Add(this.nextB);
             this.splitContainer1.Size = new System.Drawing.Size(1478, 709);
             this.splitContainer1.SplitterDistance = 345;
             this.splitContainer1.TabIndex = 0;
@@ -92,9 +98,43 @@ namespace LicensePlateRecognition
             this.panel1.TabIndex = 0;
             this.panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.panel1_Paint);
             // 
+            // panel3
+            // 
+            this.panel3.Controls.Add(this.imageBox1);
+            this.panel3.Location = new System.Drawing.Point(248, 111);
+            this.panel3.Name = "panel3";
+            this.panel3.Size = new System.Drawing.Size(868, 524);
+            this.panel3.TabIndex = 6;
+            // 
+            // imageBox1
+            // 
+            this.imageBox1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.imageBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.imageBox1.Location = new System.Drawing.Point(0, 0);
+            this.imageBox1.Name = "imageBox1";
+            this.imageBox1.Size = new System.Drawing.Size(868, 524);
+            this.imageBox1.TabIndex = 5;
+            this.imageBox1.TabStop = false;
+            // 
+            // nameB
+            // 
+            this.nameB.Location = new System.Drawing.Point(37, 154);
+            this.nameB.Name = "nameB";
+            this.nameB.Size = new System.Drawing.Size(162, 20);
+            this.nameB.TabIndex = 19;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(90, 138);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(53, 13);
+            this.label3.TabIndex = 20;
+            this.label3.Text = "Matricula:";
+            // 
             // inputTextBox
             // 
-            this.inputTextBox.Location = new System.Drawing.Point(2, 108);
+            this.inputTextBox.Location = new System.Drawing.Point(3, 222);
             this.inputTextBox.Multiline = true;
             this.inputTextBox.Name = "inputTextBox";
             this.inputTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
@@ -103,16 +143,11 @@ namespace LicensePlateRecognition
             // 
             // panel2
             // 
-            this.panel2.Controls.Add(this.SaveDbButton);
-            this.panel2.Controls.Add(this.label3);
-            this.panel2.Controls.Add(this.nameB);
-            this.panel2.Controls.Add(this.indiceB);
-            this.panel2.Controls.Add(this.beforeB);
-            this.panel2.Controls.Add(this.nextB);
             this.panel2.Controls.Add(this.label2);
-            this.panel2.Controls.Add(this.button4);
             this.panel2.Controls.Add(this.inputB);
-            this.panel2.Controls.Add(this.button3);
+            this.panel2.Controls.Add(this.SaveDbButton);
+            this.panel2.Controls.Add(this.button4);
+            this.panel2.Controls.Add(this.DeleteBtn);
             this.panel2.Controls.Add(this.cVisionButton);
             this.panel2.Controls.Add(this.button2);
             this.panel2.Controls.Add(this.GoogleBtn);
@@ -128,45 +163,31 @@ namespace LicensePlateRecognition
             this.panel2.Size = new System.Drawing.Size(1129, 108);
             this.panel2.TabIndex = 3;
             // 
-            // indiceB
-            // 
-            this.indiceB.Location = new System.Drawing.Point(49, 77);
-            this.indiceB.Name = "indiceB";
-            this.indiceB.Size = new System.Drawing.Size(42, 20);
-            this.indiceB.TabIndex = 18;
-            this.indiceB.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.indiceB.KeyUp += new System.Windows.Forms.KeyEventHandler(this.indiceB_KeyUp);
-            // 
-            // beforeB
-            // 
-            this.beforeB.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.beforeB.Location = new System.Drawing.Point(2, 70);
-            this.beforeB.Name = "beforeB";
-            this.beforeB.Size = new System.Drawing.Size(41, 36);
-            this.beforeB.TabIndex = 17;
-            this.beforeB.Text = "<";
-            this.beforeB.UseVisualStyleBackColor = true;
-            this.beforeB.Click += new System.EventHandler(this.beforeB_Click);
-            // 
-            // nextB
-            // 
-            this.nextB.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.nextB.Location = new System.Drawing.Point(97, 70);
-            this.nextB.Name = "nextB";
-            this.nextB.Size = new System.Drawing.Size(42, 36);
-            this.nextB.TabIndex = 16;
-            this.nextB.Text = ">";
-            this.nextB.UseVisualStyleBackColor = true;
-            this.nextB.Click += new System.EventHandler(this.nextB_Click);
-            // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(27, 54);
+            this.label2.Location = new System.Drawing.Point(27, 53);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(26, 13);
+            this.label2.Size = new System.Drawing.Size(39, 13);
             this.label2.TabIndex = 12;
-            this.label2.Text = "File:";
+            this.label2.Text = "Folder:";
+            // 
+            // inputB
+            // 
+            this.inputB.Location = new System.Drawing.Point(73, 51);
+            this.inputB.Name = "inputB";
+            this.inputB.Size = new System.Drawing.Size(360, 20);
+            this.inputB.TabIndex = 10;
+            // 
+            // SaveDbButton
+            // 
+            this.SaveDbButton.Location = new System.Drawing.Point(439, 75);
+            this.SaveDbButton.Name = "SaveDbButton";
+            this.SaveDbButton.Size = new System.Drawing.Size(75, 23);
+            this.SaveDbButton.TabIndex = 21;
+            this.SaveDbButton.Text = "Guardar BD";
+            this.SaveDbButton.UseVisualStyleBackColor = true;
+            this.SaveDbButton.Click += new System.EventHandler(this.SaveDbButton_Click);
             // 
             // button4
             // 
@@ -178,22 +199,15 @@ namespace LicensePlateRecognition
             this.button4.UseVisualStyleBackColor = true;
             this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
-            // inputB
+            // DeleteBtn
             // 
-            this.inputB.Location = new System.Drawing.Point(73, 47);
-            this.inputB.Name = "inputB";
-            this.inputB.Size = new System.Drawing.Size(360, 20);
-            this.inputB.TabIndex = 10;
-            // 
-            // button3
-            // 
-            this.button3.Location = new System.Drawing.Point(610, 50);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(75, 23);
-            this.button3.TabIndex = 9;
-            this.button3.Text = "Delete Image";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.DeleteBtn.Location = new System.Drawing.Point(610, 50);
+            this.DeleteBtn.Name = "DeleteBtn";
+            this.DeleteBtn.Size = new System.Drawing.Size(75, 23);
+            this.DeleteBtn.TabIndex = 9;
+            this.DeleteBtn.Text = "Delete Image";
+            this.DeleteBtn.UseVisualStyleBackColor = true;
+            this.DeleteBtn.Click += new System.EventHandler(this.Delete_Click);
             // 
             // cVisionButton
             // 
@@ -238,7 +252,7 @@ namespace LicensePlateRecognition
             // processTimeLabel
             // 
             this.processTimeLabel.AutoSize = true;
-            this.processTimeLabel.Location = new System.Drawing.Point(34, 54);
+            this.processTimeLabel.Location = new System.Drawing.Point(27, 80);
             this.processTimeLabel.Name = "processTimeLabel";
             this.processTimeLabel.Size = new System.Drawing.Size(0, 13);
             this.processTimeLabel.TabIndex = 4;
@@ -246,7 +260,7 @@ namespace LicensePlateRecognition
             // informationLabel
             // 
             this.informationLabel.AutoSize = true;
-            this.informationLabel.Location = new System.Drawing.Point(27, 55);
+            this.informationLabel.Location = new System.Drawing.Point(20, 81);
             this.informationLabel.Name = "informationLabel";
             this.informationLabel.Size = new System.Drawing.Size(0, 13);
             this.informationLabel.TabIndex = 3;
@@ -278,51 +292,40 @@ namespace LicensePlateRecognition
             this.label1.TabIndex = 0;
             this.label1.Text = "File:";
             // 
+            // indiceB
+            // 
+            this.indiceB.Location = new System.Drawing.Point(93, 187);
+            this.indiceB.Name = "indiceB";
+            this.indiceB.Size = new System.Drawing.Size(42, 20);
+            this.indiceB.TabIndex = 18;
+            this.indiceB.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.indiceB.KeyUp += new System.Windows.Forms.KeyEventHandler(this.indiceB_KeyUp);
+            // 
+            // beforeB
+            // 
+            this.beforeB.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.beforeB.Location = new System.Drawing.Point(46, 180);
+            this.beforeB.Name = "beforeB";
+            this.beforeB.Size = new System.Drawing.Size(41, 36);
+            this.beforeB.TabIndex = 17;
+            this.beforeB.Text = "<";
+            this.beforeB.UseVisualStyleBackColor = true;
+            this.beforeB.Click += new System.EventHandler(this.beforeB_Click);
+            // 
+            // nextB
+            // 
+            this.nextB.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.nextB.Location = new System.Drawing.Point(141, 180);
+            this.nextB.Name = "nextB";
+            this.nextB.Size = new System.Drawing.Size(42, 36);
+            this.nextB.TabIndex = 16;
+            this.nextB.Text = ">";
+            this.nextB.UseVisualStyleBackColor = true;
+            this.nextB.Click += new System.EventHandler(this.nextB_Click);
+            // 
             // openFileDialog1
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(212, 77);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(53, 13);
-            this.label3.TabIndex = 20;
-            this.label3.Text = "Matricula:";
-            // 
-            // nameB
-            // 
-            this.nameB.Location = new System.Drawing.Point(271, 74);
-            this.nameB.Name = "nameB";
-            this.nameB.Size = new System.Drawing.Size(162, 20);
-            this.nameB.TabIndex = 19;
-            // 
-            // SaveDbButton
-            // 
-            this.SaveDbButton.Location = new System.Drawing.Point(439, 75);
-            this.SaveDbButton.Name = "SaveDbButton";
-            this.SaveDbButton.Size = new System.Drawing.Size(75, 23);
-            this.SaveDbButton.TabIndex = 21;
-            this.SaveDbButton.Text = "Guardar BD";
-            this.SaveDbButton.UseVisualStyleBackColor = true;
-            this.SaveDbButton.Click += new System.EventHandler(this.SaveDbButton_Click);
-            // 
-            // panel3
-            // 
-            this.panel3.Controls.Add(this.imageBox1);
-            this.panel3.Location = new System.Drawing.Point(248, 111);
-            this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(868, 524);
-            this.panel3.TabIndex = 6;
-            // 
-            // imageBox1
-            // 
-            this.imageBox1.Location = new System.Drawing.Point(2, 2);
-            this.imageBox1.Name = "imageBox1";
-            this.imageBox1.Size = new System.Drawing.Size(865, 521);
-            this.imageBox1.TabIndex = 0;
-            this.imageBox1.TabStop = false;
             // 
             // LicensePlateRecognitionForm
             // 
@@ -337,10 +340,10 @@ namespace LicensePlateRecognition
             this.splitContainer1.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
-            this.panel2.ResumeLayout(false);
-            this.panel2.PerformLayout();
             this.panel3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.imageBox1)).EndInit();
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
             this.ResumeLayout(false);
 
       }
@@ -360,7 +363,7 @@ namespace LicensePlateRecognition
         private System.Windows.Forms.Button TesseractBtn;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button cVisionButton;
-        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button DeleteBtn;
         private System.Windows.Forms.TextBox inputTextBox;
         private System.Windows.Forms.TextBox indiceB;
         private System.Windows.Forms.Button beforeB;
@@ -372,6 +375,6 @@ namespace LicensePlateRecognition
         private System.Windows.Forms.TextBox nameB;
         private System.Windows.Forms.Button SaveDbButton;
         private System.Windows.Forms.Panel panel3;
-        private System.Windows.Forms.PictureBox imageBox1;
+        private Emgu.CV.UI.ImageBox imageBox1;
     }
 }

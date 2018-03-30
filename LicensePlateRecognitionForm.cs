@@ -20,6 +20,7 @@ using System.Text.RegularExpressions;
 using System.IO;
 using LicensePlateRecognition.Utils;
 using System.Linq;
+using LicensePlateRecognition.OCR_Method;
 
 namespace LicensePlateRecognition
 {
@@ -47,24 +48,47 @@ namespace LicensePlateRecognition
             List<string> words = new List<string>();
             var result = false;
             bool validValue = false;
+            if (count != 3)
+            {
+                words = _licensePlateDetector.DetectLicensePlate(
+                image,
+                licensePlateImagesList,
+                filteredLicensePlateImagesList,
+                licenseBoxList,
+                ocr_mode);
+            }
+            else
+            {
+                UMat filteredPlate = new UMat();
+                StringBuilder strBuilder = new StringBuilder();
+                CvInvoke.CvtColor(img, filteredPlate, ColorConversion.Bgr2Gray);
+                strBuilder = ComputerVisionOCR.GetText(filteredPlate);
 
-            words = _licensePlateDetector.DetectLicensePlate(
-               image,
-               licensePlateImagesList,
-               filteredLicensePlateImagesList,
-               licenseBoxList,
-               ocr_mode);
+                if (strBuilder != null)
+                {
+                    List<String> licenses = new List<String>
+                    {
+                        strBuilder.ToString()
+                    };
+                    licenses.ForEach(
+                        x =>
+                        {
+                            words.Add(x);
+                        });
+                }
+            }
 
             words.ForEach(w =>
             {
-                string replacement = Regex.Replace(w, @"\t|\n|\r", "");
+                string replacement2 = Regex.Replace(w, @"\t|\n|\r", "");
+                string replacement = Regex.Replace(replacement2, "[^0-9a-zA-Z]+", "");
                 if (replacement.Length >= 6 && replacement.Length <= 8 && replacement != null && FilterLicenceSpain(replacement))
                 {
                     validValue = true;
                 }
             });
 
-            if (validValue || count == 5)
+            if (validValue || count == 5 || ocr_mode == 3)
             {
                 ShowResults(image, watch, licensePlateImagesList, filteredLicensePlateImagesList, licenseBoxList, words, count);
                 result = true;
@@ -115,9 +139,11 @@ namespace LicensePlateRecognition
             {
                 Mat dest = new Mat();
                 CvInvoke.VConcat(licensePlateImagesList[i], filteredLicensePlateImagesList[i], dest);
+                string replacement2 = Regex.Replace(words[i], @"\t|\n|\r", "");
+                string replacement = Regex.Replace(replacement2, "[^0-9a-zA-Z]+", "");
                 AddLabelAndImage(
                    ref startPoint,
-                   String.Format("License: {0}", words[i]),
+                   String.Format("License: {0}", replacement),
                    dest);
                 PointF[] verticesF = licenseBoxList[i].GetVertices();
                 Point[] vertices = Array.ConvertAll(verticesF, Point.Round);
@@ -146,13 +172,17 @@ namespace LicensePlateRecognition
 
         private void button1_Click(object sender, EventArgs e)
         {
+            ///Clear multiple image 
+            inputTextBox.Text = "";
+            MyGlobal.imageClassList.Clear();
+            MyGlobal.imageList.Clear();
+
             DialogResult result = openFileDialog1.ShowDialog();
             if (result == DialogResult.OK)
             {
                 try
                 {
                     img = CvInvoke.Imread(openFileDialog1.FileName);
-
                     imageBox1.Image = img;
                     textBox1.Text = System.IO.Path.GetFileName(openFileDialog1.FileName);
                 }
@@ -173,8 +203,21 @@ namespace LicensePlateRecognition
 
         private void TesseractBtn_Click_1(object sender, EventArgs e)
         {
+            //CheckInputType();
             UMat uImg = img.GetUMat(AccessType.ReadWrite);
             ProcessImageMethod(uImg, 1);
+
+        }
+
+        private void CheckInputType()
+        {
+            if (textBox1.Text.Length == 0)
+            {
+                int.TryParse(indiceB.Text, out int value);
+                var root = SetImageDescription(value);
+                CheckLicenceDataBase(value);
+                img = CvInvoke.Imread(root);
+            }
         }
 
         private void ProcessImageMethod(UMat uImg, int ocr_Method)
@@ -190,31 +233,39 @@ namespace LicensePlateRecognition
 
         private void GoogleBtn_Click(object sender, EventArgs e)
         {
+            CheckInputType();
             UMat uImg = img.GetUMat(AccessType.ReadWrite);
             ProcessImageMethod(uImg, 2);
         }
 
         private void Button2_Click(object sender, EventArgs e)
         {
-            img = CvInvoke.Imread(openFileDialog1.FileName);
             imageBox1.Image = img;
         }
 
         private void CVisionButton_Click(object sender, EventArgs e)
         {
+            CheckInputType();
             UMat uImg = img.GetUMat(AccessType.ReadWrite);
             ProcessImageMethod(uImg, 3);
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void Delete_Click(object sender, EventArgs e)
         {
-            var x = openFileDialog1.FileName;
+            var value = default(int);
+            int.TryParse(indiceB.Text, out value);
+            var x = SetImageDescription(value);
 
+            NextImage();
+
+            DeleteLicenceDataBase(value);
             File.Delete(x);
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
+            //remove one image texbox text
+            textBox1.Text = "";
             inputTextBox.Text = "";
             using (var fbd = new FolderBrowserDialog())
             {
@@ -261,7 +312,7 @@ namespace LicensePlateRecognition
                 ImageName = fileText
             };
         }
-        private void SetImageDescription(int indexImage)
+        private string SetImageDescription(int indexImage)
         {
             var first = MyGlobal.imageClassList[indexImage];
             var index = first.ImageName.IndexOf(".");
@@ -269,8 +320,11 @@ namespace LicensePlateRecognition
             var extension = first.ImageName.Substring(index + 1, first.ImageName.Length - index - 1);
             nameB.Text = "";
             indiceB.Text = first.Id.ToString();
-            imageBox1.Load(inputB.Text + "\\" + first.ImageName);
+            var result = inputB.Text + "\\" + first.ImageName;
+            imageBox1.Load(result);
             imageBox1.SizeMode = PictureBoxSizeMode.StretchImage;
+
+            return result;
         }
 
         public void CheckLicenceDataBase(int index)
@@ -284,6 +338,28 @@ namespace LicensePlateRecognition
                     if (imageSelected.Any())
                     {
                         nameB.Text = imageSelected.FirstOrDefault().carLicence;
+                    }
+                }
+            }
+            catch (Exception es)
+
+            {
+                MessageBox.Show(es.Message);
+            }
+        }
+
+        public void DeleteLicenceDataBase(int index)
+        {
+            var first = MyGlobal.imageClassList[index];
+            try
+            {
+                using (var context = new ImageDataBaseEntities())
+                {
+                    IQueryable<ImagesLicence> imageSelected = GetImageDetails(first, context);
+                    if (imageSelected.Any())
+                    {
+                        context.ImagesLicences.Remove(imageSelected.FirstOrDefault());
+                        context.SaveChanges();
                     }
                 }
             }
@@ -320,6 +396,8 @@ namespace LicensePlateRecognition
                     {
                         value--;
                         SetImageDescription(value);
+                        var root = SetImageDescription(value);
+                        img = CvInvoke.Imread(root);
                         CheckLicenceDataBase(value);
                     }
                 }
@@ -330,6 +408,11 @@ namespace LicensePlateRecognition
 
         private void nextB_Click(object sender, EventArgs e)
         {
+            NextImage();
+        }
+
+        private void NextImage()
+        {
             if (indiceB.Text.Length > 0 && indiceB.Text != String.Empty)
             {
                 try
@@ -338,7 +421,8 @@ namespace LicensePlateRecognition
                     int.TryParse(indiceB.Text, out value);
 
                     value++;
-                    SetImageDescription(value);
+                    var root = SetImageDescription(value);
+                    img = CvInvoke.Imread(root);
                     CheckLicenceDataBase(value);
                 }
                 catch (Exception)
@@ -402,7 +486,8 @@ namespace LicensePlateRecognition
                         int.TryParse(indiceB.Text, out value);
                         if (value != 0)
                         {
-                            SetImageDescription(value);
+                            var root = SetImageDescription(value);
+                            img = CvInvoke.Imread(root);
                             CheckLicenceDataBase(value);
                         }
                     }

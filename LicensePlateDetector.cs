@@ -279,14 +279,9 @@ namespace LicensePlateRecognition
 
                             SaveImageClass.SaveImage(plate, "plate.jpg");
                             UMat filteredPlate = new UMat();
-                            if (ocr_mode == 3)
-                            {
-                                filteredPlate = plate;
-                            }
-                            else
-                            {
-                                filteredPlate = FilterPlate(plate);
-                            }
+
+                            filteredPlate = FilterPlate(plate);
+
                             SaveImageClass.SaveImage(filteredPlate, "filtered.jpg");
                             StringBuilder strBuilder = new StringBuilder();
                             switch (ocr_mode)
