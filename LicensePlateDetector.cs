@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-//  Copyright (C) 2004-2018 by EMGU Corporation. All rights reserved.       
+//  Copyright (C) 2004-2018 by EMGU Corporation. All rights reserved.
 //----------------------------------------------------------------------------
 
 using Emgu.CV;
@@ -9,6 +9,8 @@ using Emgu.CV.Structure;
 using Emgu.CV.Util;
 using Emgu.Util;
 using Google.Cloud.Vision.V1;
+using LicensePlateRecognition.OCR_Method;
+using LicensePlateRecognition.Utils;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -104,11 +106,9 @@ namespace LicensePlateRecognition
             }
         }
 
-
-
         /*
         /// <summary>
-        /// Compute the white pixel mask for the given image. 
+        /// Compute the white pixel mask for the given image.
         /// A white pixel is a pixel where:  saturation &lt; 40 AND value &gt; 200
         /// </summary>
         /// <param name="image">The color image to find white mask from</param>
@@ -152,7 +152,7 @@ namespace LicensePlateRecognition
            List<IInputOutputArray> licensePlateImagesList,
            List<IInputOutputArray> filteredLicensePlateImagesList,
            List<RotatedRect> detectedLicensePlateRegionList,
-           bool ocr_mode)
+           int ocr_mode)
         {
             List<String> licenses = new List<String>();
             using (Mat gray = new Mat())
@@ -163,6 +163,8 @@ namespace LicensePlateRecognition
                 CvInvoke.Canny(gray, canny, 100, 50, 3, false);
                 int[,] hierachy = CvInvoke.FindContourTree(canny, contours, ChainApproxMethod.ChainApproxSimple);
 
+                SaveImageClass.SaveImage(gray, "gray.jpg");
+                SaveImageClass.SaveImage(canny, "canny.jpg");
                 FindLicensePlate(contours, hierachy, 0, gray, canny, licensePlateImagesList, filteredLicensePlateImagesList, detectedLicensePlateRegionList, licenses, ocr_mode);
             }
             return licenses;
@@ -187,7 +189,7 @@ namespace LicensePlateRecognition
         private void FindLicensePlate(
            VectorOfVectorOfPoint contours, int[,] hierachy, int idx, IInputArray gray, IInputArray canny,
            List<IInputOutputArray> licensePlateImagesList, List<IInputOutputArray> filteredLicensePlateImagesList, List<RotatedRect> detectedLicensePlateRegionList,
-           List<String> licenses, bool ocr_mode)
+           List<String> licenses, int ocr_mode)
         {
             for (; idx >= 0; idx = hierachy[idx, 0])
             {
@@ -199,9 +201,9 @@ namespace LicensePlateRecognition
                 {
                     if (CvInvoke.ContourArea(contour) > 400)
                     {
-                        if (numberOfChildren < 3)
+                        if (numberOfChildren < 6)
                         {
-                            //If the contour has less than 3 children, it is not a license plate (assuming license plate has at least 3 charactor)
+                            //If the contour has less than 6 children, it is not a license plate (assuming license plate has at least 3 charactor)
                             //However we should search the children of this contour to see if any of them is a license plate
                             FindLicensePlate(contours, hierachy, hierachy[idx, 2], gray, canny, licensePlateImagesList,
                                filteredLicensePlateImagesList, detectedLicensePlateRegionList, licenses, ocr_mode);
@@ -228,7 +230,7 @@ namespace LicensePlateRecognition
                         if (!(3.0 < whRatio && whRatio < 10.0))
                         //if (!(1.0 < whRatio && whRatio < 2.0))
                         {
-                            //if the width height ratio is not in the specific range,it is not a license plate 
+                            //if the width height ratio is not in the specific range,it is not a license plate
                             //However we should search the children of this contour to see if any of them is a license plate
                             //Contour<Point> child = contours.VNext;
                             if (hierachy[idx, 2] > 0)
@@ -250,98 +252,75 @@ namespace LicensePlateRecognition
 
                             using (Mat rot = CvInvoke.GetAffineTransform(srcCorners, destCorners))
                             {
+                                //box.Center.X -= 20;
+                                //box.Size.Height += 20;
+                                //box.Size.Width += 20;
+                                //box.Center.Y -= 20;
+
                                 CvInvoke.WarpAffine(gray, tmp1, rot, Size.Round(box.Size));
                             }
-
+                            SaveImageClass.SaveImage(gray, "gray2.jpg");
+                            SaveImageClass.SaveImage(tmp1, "tmp1.jpg");
                             //resize the license plate such that the front is ~ 10-12. This size of front results in better accuracy from tesseract
                             Size approxSize = new Size(240, 180);
                             double scale = Math.Min(approxSize.Width / box.Size.Width, approxSize.Height / box.Size.Height);
                             Size newSize = new Size((int)Math.Round(box.Size.Width * scale), (int)Math.Round(box.Size.Height * scale));
                             CvInvoke.Resize(tmp1, tmp2, newSize, 0, 0, Inter.Cubic);
 
+                            SaveImageClass.SaveImage(tmp1, "tmp1after.jpg");
+                            SaveImageClass.SaveImage(tmp2, "tmp2.jpg");
+
                             //removes some pixels from the edge
                             int edgePixelSize = 3;
                             Rectangle newRoi = new Rectangle(new Point(edgePixelSize, edgePixelSize),
                                tmp2.Size - new Size(2 * edgePixelSize, 2 * edgePixelSize));
+
                             UMat plate = new UMat(tmp2, newRoi);
 
-                            UMat filteredPlate = FilterPlate(plate);
-                            StringBuilder strBuilder = new StringBuilder();
-                            if (ocr_mode)
+                            SaveImageClass.SaveImage(plate, "plate.jpg");
+                            UMat filteredPlate = new UMat();
+                            if (ocr_mode == 3)
                             {
-                                strBuilder = TesseractOCR(filteredPlate);
-
+                                filteredPlate = plate;
                             }
                             else
                             {
-                                strBuilder = GoogleApiOCR(filteredPlate);
+                                filteredPlate = FilterPlate(plate);
                             }
+                            SaveImageClass.SaveImage(filteredPlate, "filtered.jpg");
+                            StringBuilder strBuilder = new StringBuilder();
+                            switch (ocr_mode)
+                            {
+                                case 1:
+                                    {
+                                        strBuilder = TesseractOCR.GetText(filteredPlate, _ocr);
+                                        break;
+                                    }
+                                case 2:
+                                    {
+                                        strBuilder = GoogleApiOCR.GetText(filteredPlate);
+                                        break;
+                                    }
+                                case 3:
+                                    {
+                                        strBuilder = ComputerVisionOCR.GetText(filteredPlate);
+                                        break;
+                                    }
 
-                            licenses.Add(strBuilder.ToString());
-                            licensePlateImagesList.Add(plate);
-                            filteredLicensePlateImagesList.Add(filteredPlate);
-                            detectedLicensePlateRegionList.Add(box);
-
+                                default:
+                                    break;
+                            }
+                            if (strBuilder != null)
+                            {
+                                licenses.Add(strBuilder.ToString());
+                                licensePlateImagesList.Add(plate);
+                                filteredLicensePlateImagesList.Add(filteredPlate);
+                                detectedLicensePlateRegionList.Add(box);
+                            }
                         }
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// Google api OCR
-        /// </summary>
-        /// <param name="filteredPlate"></param>
-        /// <returns></returns>
-        private StringBuilder GoogleApiOCR(UMat filteredPlate)
-        {
-
-            var client = ImageAnnotatorClient.Create();
-            // load the image file into memory
-            var filteredImageBitmap = filteredPlate.Bitmap;
-            filteredImageBitmap.Save(@"path + test.jpg");
-            var image = Google.Cloud.Vision.V1.Image.FromFile(@"path + test.jpg");
-            // performs label detection on the image file
-            var response = client.DetectText(image);
-            StringBuilder strBuilder = new StringBuilder();
-            foreach (var annotation in response)
-            {
-                if (annotation.Description != null)
-                {
-                    strBuilder.Append(annotation.Description);
-                }
-            }
-
-            return strBuilder;
-        }
-
-        /// <summary>
-        /// Tesseract OCR
-        /// </summary>
-        /// <param name="filteredPlate"></param>
-        /// <returns></returns>
-        private StringBuilder TesseractOCR(UMat filteredPlate)
-        {
-            Emgu.CV.OCR.Tesseract.Character[] words;
-            StringBuilder strBuilder = new StringBuilder();
-            using (UMat tmp = filteredPlate.Clone())
-            {
-                _ocr.SetImage(tmp);
-                _ocr.Recognize();
-
-                strBuilder.Append(_ocr.GetUTF8Text());
-
-                words = _ocr.GetCharacters();
-
-                //if (words.Length == 0) continue;
-
-                //for (int i = 0; i < words.Length; i++)
-                //{
-                //    strBuilder.Append(words[i].Text);
-                //}
-            }
-
-            return strBuilder;
         }
 
         /// <summary>
@@ -352,9 +331,10 @@ namespace LicensePlateRecognition
         private static UMat FilterPlate(UMat plate)
         {
             UMat thresh = new UMat();
-            CvInvoke.Threshold(plate, thresh, 120, 255, ThresholdType.BinaryInv);
+            CvInvoke.Threshold(plate, thresh, 100, 255, ThresholdType.BinaryInv);
             //Image<Gray, Byte> thresh = plate.ThresholdBinaryInv(new Gray(120), new Gray(255));
 
+            SaveImageClass.SaveImage(plate, "plate.jpg");
             Size plateSize = plate.Size;
             using (Mat plateMask = new Mat(plateSize.Height, plateSize.Width, DepthType.Cv8U, 1))
             using (Mat plateCanny = new Mat())
@@ -379,14 +359,17 @@ namespace LicensePlateRecognition
                             //plateMask.Draw(rect, new Gray(0.0), -1);
                         }
                     }
-
                 }
 
                 thresh.SetTo(new MCvScalar(), plateMask);
             }
 
+            SaveImageClass.SaveImage(thresh, "thresh1.jpg");
+
             CvInvoke.Erode(thresh, thresh, null, new Point(-1, -1), 1, BorderType.Constant, CvInvoke.MorphologyDefaultBorderValue);
-            CvInvoke.Dilate(thresh, thresh, null, new Point(-1, -1), 1, BorderType.Constant, CvInvoke.MorphologyDefaultBorderValue);
+            SaveImageClass.SaveImage(thresh, "threshErode.jpg");
+            CvInvoke.Dilate(thresh, thresh, null, new Point(-1, -1), 2, BorderType.Constant, CvInvoke.MorphologyDefaultBorderValue);
+            SaveImageClass.SaveImage(thresh, "threshDilate.jpg");
 
             return thresh;
         }
@@ -395,7 +378,5 @@ namespace LicensePlateRecognition
         {
             _ocr.Dispose();
         }
-
-       
     }
 }
