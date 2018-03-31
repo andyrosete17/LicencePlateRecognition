@@ -37,6 +37,7 @@ namespace LicensePlateRecognition
             this.label3 = new System.Windows.Forms.Label();
             this.inputTextBox = new System.Windows.Forms.TextBox();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.button3 = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.inputB = new System.Windows.Forms.TextBox();
             this.SaveDbButton = new System.Windows.Forms.Button();
@@ -143,6 +144,7 @@ namespace LicensePlateRecognition
             // 
             // panel2
             // 
+            this.panel2.Controls.Add(this.button3);
             this.panel2.Controls.Add(this.label2);
             this.panel2.Controls.Add(this.inputB);
             this.panel2.Controls.Add(this.SaveDbButton);
@@ -163,6 +165,16 @@ namespace LicensePlateRecognition
             this.panel2.Size = new System.Drawing.Size(1129, 108);
             this.panel2.TabIndex = 3;
             // 
+            // button3
+            // 
+            this.button3.Location = new System.Drawing.Point(529, 49);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(75, 23);
+            this.button3.TabIndex = 22;
+            this.button3.Text = "TesseractG";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
+            // 
             // label2
             // 
             this.label2.AutoSize = true;
@@ -181,7 +193,7 @@ namespace LicensePlateRecognition
             // 
             // SaveDbButton
             // 
-            this.SaveDbButton.Location = new System.Drawing.Point(439, 75);
+            this.SaveDbButton.Location = new System.Drawing.Point(439, 79);
             this.SaveDbButton.Name = "SaveDbButton";
             this.SaveDbButton.Size = new System.Drawing.Size(75, 23);
             this.SaveDbButton.TabIndex = 21;
@@ -201,7 +213,7 @@ namespace LicensePlateRecognition
             // 
             // DeleteBtn
             // 
-            this.DeleteBtn.Location = new System.Drawing.Point(610, 50);
+            this.DeleteBtn.Location = new System.Drawing.Point(610, 79);
             this.DeleteBtn.Name = "DeleteBtn";
             this.DeleteBtn.Size = new System.Drawing.Size(75, 23);
             this.DeleteBtn.TabIndex = 9;
@@ -211,7 +223,7 @@ namespace LicensePlateRecognition
             // 
             // cVisionButton
             // 
-            this.cVisionButton.Location = new System.Drawing.Point(691, 19);
+            this.cVisionButton.Location = new System.Drawing.Point(691, 18);
             this.cVisionButton.Name = "cVisionButton";
             this.cVisionButton.Size = new System.Drawing.Size(101, 23);
             this.cVisionButton.TabIndex = 8;
@@ -221,7 +233,7 @@ namespace LicensePlateRecognition
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(529, 50);
+            this.button2.Location = new System.Drawing.Point(529, 79);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(75, 23);
             this.button2.TabIndex = 7;
@@ -231,7 +243,7 @@ namespace LicensePlateRecognition
             // 
             // GoogleBtn
             // 
-            this.GoogleBtn.Location = new System.Drawing.Point(610, 19);
+            this.GoogleBtn.Location = new System.Drawing.Point(610, 18);
             this.GoogleBtn.Name = "GoogleBtn";
             this.GoogleBtn.Size = new System.Drawing.Size(75, 23);
             this.GoogleBtn.TabIndex = 6;
@@ -376,5 +388,6 @@ namespace LicensePlateRecognition
         private System.Windows.Forms.Button SaveDbButton;
         private System.Windows.Forms.Panel panel3;
         private Emgu.CV.UI.ImageBox imageBox1;
+        private System.Windows.Forms.Button button3;
     }
 }

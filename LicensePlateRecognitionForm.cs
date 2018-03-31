@@ -206,6 +206,7 @@ namespace LicensePlateRecognition
             //CheckInputType();
             UMat uImg = img.GetUMat(AccessType.ReadWrite);
             ProcessImageMethod(uImg, 1);
+            ResetImage();
 
         }
 
@@ -236,9 +237,15 @@ namespace LicensePlateRecognition
             CheckInputType();
             UMat uImg = img.GetUMat(AccessType.ReadWrite);
             ProcessImageMethod(uImg, 2);
+            ResetImage();
         }
 
         private void Button2_Click(object sender, EventArgs e)
+        {
+            ResetImage();
+        }
+
+        private void ResetImage()
         {
             imageBox1.Image = img;
         }
@@ -248,6 +255,7 @@ namespace LicensePlateRecognition
             CheckInputType();
             UMat uImg = img.GetUMat(AccessType.ReadWrite);
             ProcessImageMethod(uImg, 3);
+            ResetImage();
         }
 
         private void Delete_Click(object sender, EventArgs e)
@@ -495,6 +503,11 @@ namespace LicensePlateRecognition
                     { }
                 }
             }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
