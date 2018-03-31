@@ -253,6 +253,7 @@
     <None Include="ImageModel.edmx.diagram">
       <DependentUpon>ImageModel.edmx</DependentUpon>
     </None>
+    <None Include="NLog.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

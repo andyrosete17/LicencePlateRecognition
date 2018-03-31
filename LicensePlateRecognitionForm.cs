@@ -130,11 +130,15 @@ namespace LicensePlateRecognition
 
         private void ShowResults(IInputOutputArray image, Stopwatch watch, List<IInputOutputArray> licensePlateImagesList, List<IInputOutputArray> filteredLicensePlateImagesList, List<RotatedRect> licenseBoxList, List<string> words, int count)
         {
+            var logger = NLog.LogManager.GetCurrentClassLogger();
+            var refinnedWords = new List<string>();
             watch.Stop(); //stop the timer
             processTimeLabel.Text = String.Format("License Plate Recognition time: {0} milli-seconds \nIteration number = {1}", watch.Elapsed.TotalMilliseconds, count);
 
             panel1.Controls.Clear();
             Point startPoint = new Point(10, 10);
+            logger.Trace("License Plate Recognition time: {0} milli-seconds \nIteration number = {1}", watch.Elapsed.TotalMilliseconds, count);
+            logger.Trace("Licence plate: {0} \nLicence detected: \n", nameB.Text);
             for (int i = 0; i < words.Count; i++)
             {
                 Mat dest = new Mat();
@@ -149,7 +153,10 @@ namespace LicensePlateRecognition
                 Point[] vertices = Array.ConvertAll(verticesF, Point.Round);
                 using (VectorOfPoint pts = new VectorOfPoint(vertices))
                     CvInvoke.Polylines(image, pts, true, new Bgr(Color.Red).MCvScalar, 2);
+                logger.Trace("{0}- {1} \n", i, replacement);
+                refinnedWords.Add(replacement);
             }
+                LicenceQuality(nameB.Text, refinnedWords);
         }
 
         private void AddLabelAndImage(ref Point startPoint, String labelText, IImage image)
@@ -310,6 +317,8 @@ namespace LicensePlateRecognition
             public static List<string> imageList = new List<string>();
 
             public static List<ImageStructure> imageClassList = new List<ImageStructure>();
+
+            public static List<string> CorrectDetection = new List<string>();
         }
 
         private static ImageStructure GetImageStructure(int count, string fileText)
@@ -505,7 +514,34 @@ namespace LicensePlateRecognition
             }
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void LicenceQuality(string correctLicence, List<string> detectedLicence)
+        {
+            var logger = NLog.LogManager.GetCurrentClassLogger();
+            bool valid = false;
+            var count = 0;
+            detectedLicence.ForEach(licence =>
+            {
+                if (string.Compare(correctLicence.ToLower(), licence.ToLower()).Equals(0))
+                {                    
+                    valid = true;
+                    count++;
+                }
+            });
+            if (valid)
+            {
+                logger.Trace("Licence plate successfully detected\n");
+                MyGlobal.CorrectDetection.Add(correctLicence);
+            }
+            else
+            {
+                logger.Trace("Licence plate wrong detection \n", nameB.Text);
+            }
+            double effectivty =  (double)count / (double)detectedLicence.Count*100;
+            logger.Trace("Licences detected: {0}\nDetection effectivity: {1}%\n", detectedLicence.Count, Math.Round(effectivty, 2));
+            
+        }
+
+        private void TesseractGBtn_Click(object sender, EventArgs e)
         {
 
         }

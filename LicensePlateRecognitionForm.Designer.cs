@@ -37,7 +37,7 @@ namespace LicensePlateRecognition
             this.label3 = new System.Windows.Forms.Label();
             this.inputTextBox = new System.Windows.Forms.TextBox();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.button3 = new System.Windows.Forms.Button();
+            this.TesseractGBtn = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.inputB = new System.Windows.Forms.TextBox();
             this.SaveDbButton = new System.Windows.Forms.Button();
@@ -144,7 +144,7 @@ namespace LicensePlateRecognition
             // 
             // panel2
             // 
-            this.panel2.Controls.Add(this.button3);
+            this.panel2.Controls.Add(this.TesseractGBtn);
             this.panel2.Controls.Add(this.label2);
             this.panel2.Controls.Add(this.inputB);
             this.panel2.Controls.Add(this.SaveDbButton);
@@ -165,15 +165,15 @@ namespace LicensePlateRecognition
             this.panel2.Size = new System.Drawing.Size(1129, 108);
             this.panel2.TabIndex = 3;
             // 
-            // button3
+            // TesseractGBtn
             // 
-            this.button3.Location = new System.Drawing.Point(529, 49);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(75, 23);
-            this.button3.TabIndex = 22;
-            this.button3.Text = "TesseractG";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.TesseractGBtn.Location = new System.Drawing.Point(529, 49);
+            this.TesseractGBtn.Name = "TesseractGBtn";
+            this.TesseractGBtn.Size = new System.Drawing.Size(75, 23);
+            this.TesseractGBtn.TabIndex = 22;
+            this.TesseractGBtn.Text = "TesseractG";
+            this.TesseractGBtn.UseVisualStyleBackColor = true;
+            this.TesseractGBtn.Click += new System.EventHandler(this.TesseractGBtn_Click);
             // 
             // label2
             // 
@@ -388,6 +388,6 @@ namespace LicensePlateRecognition
         private System.Windows.Forms.Button SaveDbButton;
         private System.Windows.Forms.Panel panel3;
         private Emgu.CV.UI.ImageBox imageBox1;
-        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button TesseractGBtn;
     }
 }
