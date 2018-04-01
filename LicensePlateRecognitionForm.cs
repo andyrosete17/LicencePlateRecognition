@@ -39,7 +39,15 @@ namespace LicensePlateRecognition
             //ProcessImage(m);
         }
 
-        private bool ProcessImage(IInputOutputArray image, int ocr_mode, int count)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="ocr_mode"></param>
+        /// <param name="count"></param>
+        /// <param name="canny_thres">Canny threshold will take 3 values 20, 30, 40, 50</param>
+        /// <returns></returns>
+        private bool ProcessImage(IInputOutputArray image, int ocr_mode, int count, int canny_thres)
         {
             Stopwatch watch = Stopwatch.StartNew(); // time the detection process
             List<IInputOutputArray> licensePlateImagesList = new List<IInputOutputArray>();
@@ -48,14 +56,15 @@ namespace LicensePlateRecognition
             List<string> words = new List<string>();
             var result = false;
             bool validValue = false;
-            if (count != 3)
+            if (count <= 5)
             {
                 words = _licensePlateDetector.DetectLicensePlate(
                 image,
                 licensePlateImagesList,
                 filteredLicensePlateImagesList,
                 licenseBoxList,
-                ocr_mode);
+                ocr_mode,
+                canny_thres);
             }
             else
             {
@@ -141,22 +150,25 @@ namespace LicensePlateRecognition
             logger.Trace("Licence plate: {0} \nLicence detected: \n", nameB.Text);
             for (int i = 0; i < words.Count; i++)
             {
-                Mat dest = new Mat();
-                CvInvoke.VConcat(licensePlateImagesList[i], filteredLicensePlateImagesList[i], dest);
-                string replacement2 = Regex.Replace(words[i], @"\t|\n|\r", "");
-                string replacement = Regex.Replace(replacement2, "[^0-9a-zA-Z]+", "");
-                AddLabelAndImage(
-                   ref startPoint,
-                   String.Format("License: {0}", replacement),
-                   dest);
-                PointF[] verticesF = licenseBoxList[i].GetVertices();
-                Point[] vertices = Array.ConvertAll(verticesF, Point.Round);
-                using (VectorOfPoint pts = new VectorOfPoint(vertices))
-                    CvInvoke.Polylines(image, pts, true, new Bgr(Color.Red).MCvScalar, 2);
-                logger.Trace("{0}- {1} \n", i, replacement);
-                refinnedWords.Add(replacement);
+                if (licensePlateImagesList.Count > 0)
+                {
+                    Mat dest = new Mat();
+                    CvInvoke.VConcat(licensePlateImagesList[i], filteredLicensePlateImagesList[i], dest);
+                    string replacement2 = Regex.Replace(words[i], @"\t|\n|\r", "");
+                    string replacement = Regex.Replace(replacement2, "[^0-9a-zA-Z]+", "");
+                    AddLabelAndImage(
+                       ref startPoint,
+                       String.Format("License: {0}", replacement),
+                       dest);
+                    PointF[] verticesF = licenseBoxList[i].GetVertices();
+                    Point[] vertices = Array.ConvertAll(verticesF, Point.Round);
+                    using (VectorOfPoint pts = new VectorOfPoint(vertices))
+                        CvInvoke.Polylines(image, pts, true, new Bgr(Color.Red).MCvScalar, 2);
+                    logger.Trace("{0}- {1} \n", i, replacement);
+                    refinnedWords.Add(replacement);
+                }
             }
-                LicenceQuality(nameB.Text, refinnedWords);
+            LicenceQuality(nameB.Text, refinnedWords);
         }
 
         private void AddLabelAndImage(ref Point startPoint, String labelText, IImage image)
@@ -210,11 +222,16 @@ namespace LicensePlateRecognition
 
         private void TesseractBtn_Click_1(object sender, EventArgs e)
         {
-            //CheckInputType();
+            TesseractSimple();
+
+        }
+
+        private void TesseractSimple()
+        {
+            CheckInputType();
             UMat uImg = img.GetUMat(AccessType.ReadWrite);
             ProcessImageMethod(uImg, 1);
             ResetImage();
-
         }
 
         private void CheckInputType()
@@ -232,7 +249,8 @@ namespace LicensePlateRecognition
         {
             for (int count = 1; count <= 5; count++)
             {
-                if (ProcessImage(uImg, ocr_Method, count))
+                var canny_thres = count * 10;
+                if (ProcessImage(uImg, ocr_Method, count, canny_thres))
                 {
                     break;
                 }
@@ -240,6 +258,11 @@ namespace LicensePlateRecognition
         }
 
         private void GoogleBtn_Click(object sender, EventArgs e)
+        {
+            GoogleApiSimple();
+        }
+
+        private void GoogleApiSimple()
         {
             CheckInputType();
             UMat uImg = img.GetUMat(AccessType.ReadWrite);
@@ -258,6 +281,11 @@ namespace LicensePlateRecognition
         }
 
         private void CVisionButton_Click(object sender, EventArgs e)
+        {
+            CompVisionSimple();
+        }
+
+        private void CompVisionSimple()
         {
             CheckInputType();
             UMat uImg = img.GetUMat(AccessType.ReadWrite);
@@ -375,6 +403,7 @@ namespace LicensePlateRecognition
                     IQueryable<ImagesLicence> imageSelected = GetImageDetails(first, context);
                     if (imageSelected.Any())
                     {
+                        imageSelected.FirstOrDefault().active = false;
                         context.ImagesLicences.Remove(imageSelected.FirstOrDefault());
                         context.SaveChanges();
                     }
@@ -522,7 +551,7 @@ namespace LicensePlateRecognition
             detectedLicence.ForEach(licence =>
             {
                 if (string.Compare(correctLicence.ToLower(), licence.ToLower()).Equals(0))
-                {                    
+                {
                     valid = true;
                     count++;
                 }
@@ -536,13 +565,64 @@ namespace LicensePlateRecognition
             {
                 logger.Trace("Licence plate wrong detection \n", nameB.Text);
             }
-            double effectivty =  (double)count / (double)detectedLicence.Count*100;
-            logger.Trace("Licences detected: {0}\nDetection effectivity: {1}%\n", detectedLicence.Count, Math.Round(effectivty, 2));
-            
+            double effectivty = 0;
+            if (detectedLicence.Count > 0)
+            {
+                effectivty = (double)count / (double)detectedLicence.Count * 100;
+            }
+            logger.Trace("Licences detected: {0} Detection effectivity: {1}%\n\n\n", detectedLicence.Count, Math.Round(effectivty, 2));
         }
 
         private void TesseractGBtn_Click(object sender, EventArgs e)
         {
+            var logger = NLog.LogManager.GetCurrentClassLogger();
+            Stopwatch globalWatch = Stopwatch.StartNew(); // time the detection process
+            for (int i = 0; i < MyGlobal.imageClassList.Count; i++)
+            {
+                if (MyGlobal.imageClassList[i].ImageName.IndexOf(".jpg") > 0)
+                {
+                    TesseractSimple();
+                }
+                NextImage();
+            }
+            globalWatch.Stop();
+            double percent = (double)MyGlobal.CorrectDetection.Count / (double)MyGlobal.imageClassList.Count * 100;
+            logger.Trace("License Plate Recognition time Tesseract Global: {0} milli-seconds \nFounded licence:{1}---Total licences{2}\nDetection percent: {4}%", globalWatch.Elapsed.TotalMilliseconds, MyGlobal.CorrectDetection.Count.ToString(), MyGlobal.imageClassList.Count.ToString(), percent.ToString());
+        }
+
+        private void GoogleApiGBtn_Click(object sender, EventArgs e)
+        {
+            var logger = NLog.LogManager.GetCurrentClassLogger();
+            Stopwatch globalWatch = Stopwatch.StartNew(); // time the detection process
+            for (int i = 0; i < MyGlobal.imageClassList.Count; i++)
+            {
+                if (MyGlobal.imageClassList[i].ImageName.IndexOf(".jpg") > 0)
+                {
+                    GoogleApiSimple();
+                }
+                NextImage();
+            }
+            globalWatch.Stop();
+            double percent = (double)MyGlobal.CorrectDetection.Count / (double)MyGlobal.imageClassList.Count * 100;
+            logger.Trace("License Plate Recognition time Google Api Global: {0} milli-seconds \nFounded licence:{1}---Total licences{2}\nDetection percent: {4}%", globalWatch.Elapsed.TotalMilliseconds, MyGlobal.CorrectDetection.Count.ToString(), MyGlobal.imageClassList.Count.ToString(), percent.ToString());
+
+        }
+
+        private void GoogleVisionGBtn_Click(object sender, EventArgs e)
+        {
+            var logger = NLog.LogManager.GetCurrentClassLogger();
+            Stopwatch globalWatch = Stopwatch.StartNew(); // time the detection process
+            for (int i = 0; i < MyGlobal.imageClassList.Count; i++)
+            {
+                if (MyGlobal.imageClassList[i].ImageName.IndexOf(".jpg") > 0)
+                {
+                    CompVisionSimple();
+                }
+                NextImage();
+            }
+            globalWatch.Stop();
+            double percent = (double)MyGlobal.CorrectDetection.Count / (double)MyGlobal.imageClassList.Count * 100;
+            logger.Trace("License Plate Recognition time Computer vision Api Global: {0} milli-seconds \nFounded licence:{1}---Total licences{2}\nDetection percent: {4}%", globalWatch.Elapsed.TotalMilliseconds, MyGlobal.CorrectDetection.Count.ToString(), MyGlobal.imageClassList.Count.ToString(), percent.ToString());
 
         }
     }

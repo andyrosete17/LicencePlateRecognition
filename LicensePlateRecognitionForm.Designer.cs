@@ -56,6 +56,8 @@ namespace LicensePlateRecognition
             this.beforeB = new System.Windows.Forms.Button();
             this.nextB = new System.Windows.Forms.Button();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.GoogleApiGBtn = new System.Windows.Forms.Button();
+            this.GoogleVisionGBtn = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -85,8 +87,8 @@ namespace LicensePlateRecognition
             this.splitContainer1.Panel2.Controls.Add(this.indiceB);
             this.splitContainer1.Panel2.Controls.Add(this.beforeB);
             this.splitContainer1.Panel2.Controls.Add(this.nextB);
-            this.splitContainer1.Size = new System.Drawing.Size(1478, 709);
-            this.splitContainer1.SplitterDistance = 345;
+            this.splitContainer1.Size = new System.Drawing.Size(1466, 635);
+            this.splitContainer1.SplitterDistance = 342;
             this.splitContainer1.TabIndex = 0;
             // 
             // panel1
@@ -95,7 +97,7 @@ namespace LicensePlateRecognition
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(345, 709);
+            this.panel1.Size = new System.Drawing.Size(342, 635);
             this.panel1.TabIndex = 0;
             this.panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.panel1_Paint);
             // 
@@ -139,11 +141,13 @@ namespace LicensePlateRecognition
             this.inputTextBox.Multiline = true;
             this.inputTextBox.Name = "inputTextBox";
             this.inputTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.inputTextBox.Size = new System.Drawing.Size(248, 362);
+            this.inputTextBox.Size = new System.Drawing.Size(248, 413);
             this.inputTextBox.TabIndex = 5;
             // 
             // panel2
             // 
+            this.panel2.Controls.Add(this.GoogleVisionGBtn);
+            this.panel2.Controls.Add(this.GoogleApiGBtn);
             this.panel2.Controls.Add(this.TesseractGBtn);
             this.panel2.Controls.Add(this.label2);
             this.panel2.Controls.Add(this.inputB);
@@ -162,7 +166,7 @@ namespace LicensePlateRecognition
             this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel2.Location = new System.Drawing.Point(0, 0);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(1129, 108);
+            this.panel2.Size = new System.Drawing.Size(1120, 108);
             this.panel2.TabIndex = 3;
             // 
             // TesseractGBtn
@@ -225,7 +229,7 @@ namespace LicensePlateRecognition
             // 
             this.cVisionButton.Location = new System.Drawing.Point(691, 18);
             this.cVisionButton.Name = "cVisionButton";
-            this.cVisionButton.Size = new System.Drawing.Size(101, 23);
+            this.cVisionButton.Size = new System.Drawing.Size(110, 23);
             this.cVisionButton.TabIndex = 8;
             this.cVisionButton.Text = "Computer Vision";
             this.cVisionButton.UseVisualStyleBackColor = true;
@@ -339,11 +343,31 @@ namespace LicensePlateRecognition
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
             // 
+            // GoogleApiGBtn
+            // 
+            this.GoogleApiGBtn.Location = new System.Drawing.Point(610, 49);
+            this.GoogleApiGBtn.Name = "GoogleApiGBtn";
+            this.GoogleApiGBtn.Size = new System.Drawing.Size(75, 23);
+            this.GoogleApiGBtn.TabIndex = 23;
+            this.GoogleApiGBtn.Text = "GoogleApiG";
+            this.GoogleApiGBtn.UseVisualStyleBackColor = true;
+            this.GoogleApiGBtn.Click += new System.EventHandler(this.GoogleApiGBtn_Click);
+            // 
+            // GoogleVisionGBtn
+            // 
+            this.GoogleVisionGBtn.Location = new System.Drawing.Point(691, 50);
+            this.GoogleVisionGBtn.Name = "GoogleVisionGBtn";
+            this.GoogleVisionGBtn.Size = new System.Drawing.Size(110, 23);
+            this.GoogleVisionGBtn.TabIndex = 24;
+            this.GoogleVisionGBtn.Text = "Computer Vision G";
+            this.GoogleVisionGBtn.UseVisualStyleBackColor = true;
+            this.GoogleVisionGBtn.Click += new System.EventHandler(this.GoogleVisionGBtn_Click);
+            // 
             // LicensePlateRecognitionForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1478, 709);
+            this.ClientSize = new System.Drawing.Size(1466, 635);
             this.Controls.Add(this.splitContainer1);
             this.Name = "LicensePlateRecognitionForm";
             this.Text = "License Plate Recognition";
@@ -389,5 +413,7 @@ namespace LicensePlateRecognition
         private System.Windows.Forms.Panel panel3;
         private Emgu.CV.UI.ImageBox imageBox1;
         private System.Windows.Forms.Button TesseractGBtn;
+        private System.Windows.Forms.Button GoogleApiGBtn;
+        private System.Windows.Forms.Button GoogleVisionGBtn;
     }
 }
