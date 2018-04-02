@@ -47,7 +47,7 @@ namespace LicensePlateRecognition
         /// <param name="count"></param>
         /// <param name="canny_thres">Canny threshold will take 3 values 20, 30, 40, 50</param>
         /// <returns></returns>
-        private bool ProcessImage(IInputOutputArray image, int ocr_mode, int count, int canny_thres)
+        private bool ProcessImage(IInputOutputArray image, int ocr_mode)
         {
             Stopwatch watch = Stopwatch.StartNew(); // time the detection process
             List<IInputOutputArray> licensePlateImagesList = new List<IInputOutputArray>();
@@ -56,52 +56,60 @@ namespace LicensePlateRecognition
             List<string> words = new List<string>();
             var result = false;
             bool validValue = false;
-            if (count <= 5)
-            {
-                words = _licensePlateDetector.DetectLicensePlate(
-                image,
-                licensePlateImagesList,
-                filteredLicensePlateImagesList,
-                licenseBoxList,
-                ocr_mode,
-                canny_thres);
-            }
-            else
-            {
-                UMat filteredPlate = new UMat();
-                StringBuilder strBuilder = new StringBuilder();
-                CvInvoke.CvtColor(img, filteredPlate, ColorConversion.Bgr2Gray);
-                strBuilder = ComputerVisionOCR.GetText(filteredPlate);
+            UMat filteredPlate = new UMat();
+            StringBuilder strBuilder = new StringBuilder();
+            CvInvoke.CvtColor(img, filteredPlate, ColorConversion.Bgr2Gray);
 
+            words = _licensePlateDetector.DetectLicensePlate(
+                        image,
+                        licensePlateImagesList,
+                        filteredLicensePlateImagesList,
+                        licenseBoxList,
+                        ocr_mode);
+
+            if (ocr_mode == 3)
+            {
+                strBuilder = ComputerVisionOCR.GetText(filteredPlate);
                 if (strBuilder != null)
                 {
+                    words.Clear();
                     List<String> licenses = new List<String>
-                    {
-                        strBuilder.ToString()
-                    };
+                        {
+                            strBuilder.ToString()
+                        };
                     licenses.ForEach(
                         x =>
                         {
                             words.Add(x);
                         });
                 }
-            }
+            }       
 
-            words.ForEach(w =>
+            var validWords = new List<string>();
+            var validLicencePlates = new List<IInputOutputArray>();
+            for (int w = 0; w < words.Count; w++)
             {
-                string replacement2 = Regex.Replace(w, @"\t|\n|\r", "");
+                string replacement2 = Regex.Replace(words[w], @"\t|\n|\r", "");
                 string replacement = Regex.Replace(replacement2, "[^0-9a-zA-Z]+", "");
                 if (replacement.Length >= 6 && replacement.Length <= 8 && replacement != null && FilterLicenceSpain(replacement))
                 {
                     validValue = true;
+                    validWords.Add(replacement);
+                    validLicencePlates.Add(licensePlateImagesList[w]);
                 }
-            });
-
-            if (validValue || count == 5 || ocr_mode == 3)
-            {
-                ShowResults(image, watch, licensePlateImagesList, filteredLicensePlateImagesList, licenseBoxList, words, count);
-                result = true;
             }
+
+            if (validValue)
+            {
+                ShowResults(image, watch, validLicencePlates, filteredLicensePlateImagesList, licenseBoxList, validWords);
+            }
+            else
+            {
+                ShowResults(image, watch, licensePlateImagesList, filteredLicensePlateImagesList, licenseBoxList, words);
+            }
+
+
+            result = true;
             return result;
         }
 
@@ -137,18 +145,18 @@ namespace LicensePlateRecognition
             return result;
         }
 
-        private void ShowResults(IInputOutputArray image, Stopwatch watch, List<IInputOutputArray> licensePlateImagesList, List<IInputOutputArray> filteredLicensePlateImagesList, List<RotatedRect> licenseBoxList, List<string> words, int count)
+        private void ShowResults(IInputOutputArray image, Stopwatch watch, List<IInputOutputArray> licensePlateImagesList, List<IInputOutputArray> filteredLicensePlateImagesList, List<RotatedRect> licenseBoxList, List<string> words)
         {
             var logger = NLog.LogManager.GetCurrentClassLogger();
             var refinnedWords = new List<string>();
             watch.Stop(); //stop the timer
-            processTimeLabel.Text = String.Format("License Plate Recognition time: {0} milli-seconds \nIteration number = {1}", watch.Elapsed.TotalMilliseconds, count);
+            processTimeLabel.Text = String.Format("License Plate Recognition time: {0} milli-seconds", watch.Elapsed.TotalMilliseconds);
 
             panel1.Controls.Clear();
             Point startPoint = new Point(10, 10);
-            logger.Trace("License Plate Recognition time: {0} milli-seconds \nIteration number = {1}", watch.Elapsed.TotalMilliseconds, count);
+            logger.Trace("License Plate Recognition time: {0} milli-seconds", watch.Elapsed.TotalMilliseconds);
             logger.Trace("Licence plate: {0} \nLicence detected: \n", nameB.Text);
-            for (int i = 0; i < words.Count; i++)
+            for (int i = 0; i < licensePlateImagesList.Count; i++)
             {
                 if (licensePlateImagesList.Count > 0)
                 {
@@ -247,14 +255,7 @@ namespace LicensePlateRecognition
 
         private void ProcessImageMethod(UMat uImg, int ocr_Method)
         {
-            for (int count = 1; count <= 5; count++)
-            {
-                var canny_thres = count * 10;
-                if (ProcessImage(uImg, ocr_Method, count, canny_thres))
-                {
-                    break;
-                }
-            }
+            ProcessImage(uImg, ocr_Method);
         }
 
         private void GoogleBtn_Click(object sender, EventArgs e)

@@ -154,8 +154,7 @@ namespace LicensePlateRecognition
            List<IInputOutputArray> licensePlateImagesList,
            List<IInputOutputArray> filteredLicensePlateImagesList,
            List<RotatedRect> detectedLicensePlateRegionList,
-           int ocr_mode,
-           int canny_thres)
+           int ocr_mode)
         {
             List<String> licenses = new List<String>();
             using (Mat gray = new Mat())
@@ -163,7 +162,7 @@ namespace LicensePlateRecognition
             using (VectorOfVectorOfPoint contours = new VectorOfVectorOfPoint())
             {
                 CvInvoke.CvtColor(img, gray, ColorConversion.Bgr2Gray);
-                CvInvoke.Canny(gray, canny, 100, canny_thres, 3, false);
+                CvInvoke.Canny(gray, canny, 100, 50, 3, false);
                 int[,] hierachy = CvInvoke.FindContourTree(canny, contours, ChainApproxMethod.ChainApproxSimple);
 
                 SaveImageClass.SaveImage(gray, "gray.jpg");
